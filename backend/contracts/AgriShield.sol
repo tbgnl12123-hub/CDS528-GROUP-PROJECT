@@ -15,7 +15,6 @@ contract AgriShield {
     event PolicyFunded(uint256 policyId, uint256 premiumAmount);
     event ClaimProcessed(uint256 policyId, address farmer, uint256 payoutAmount, string reason);
 
-    // 存储保单位置信息
     mapping(uint256 => string) private _policyLocations;
 
     modifier onlyOwner() {
@@ -30,7 +29,6 @@ contract AgriShield {
         weatherOracle = new WeatherOracle();
     }
 
-    // 移除未使用的 location 参数
     function createPolicy(
         string memory cropType,
         uint256 coverageAmount
@@ -43,7 +41,7 @@ contract AgriShield {
         return policyId;
     }
 
-    // 新增：创建带位置的保单
+
     function createPolicyWithLocation(
         string memory cropType,
         uint256 coverageAmount,
@@ -51,7 +49,7 @@ contract AgriShield {
     ) external payable returns (uint256) {
         uint256 policyId = policyManager.createPolicy{value: msg.value}(cropType, coverageAmount);
 
-        // 存储位置信息
+
         _policyLocations[policyId] = location;
 
         insurancePool.recordPremium(msg.value);
@@ -61,7 +59,7 @@ contract AgriShield {
         return policyId;
     }
 
-    // 使用存储的位置信息处理理赔
+
     function processWeatherClaim(
         uint256 policyId,
         uint256 payoutPercentage
@@ -85,7 +83,7 @@ contract AgriShield {
         emit ClaimProcessed(policyId, policy.farmer, payoutAmount, reason);
     }
 
-    // 为特定位置处理理赔
+
     function processWeatherClaimForLocation(
         uint256 policyId,
         string memory location,
@@ -104,7 +102,7 @@ contract AgriShield {
         insurancePool.executePayout(payable(policy.farmer), payoutAmount, reason);
         policyManager.recordClaim(policyId, payoutAmount);
 
-        // 更新位置信息
+ 
         _policyLocations[policyId] = location;
 
         emit ClaimProcessed(policyId, policy.farmer, payoutAmount, reason);
